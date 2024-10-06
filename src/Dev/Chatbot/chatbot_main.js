@@ -99,6 +99,7 @@ function Chatbot_main() {
     const scrollRef = useRef(null);
 
     const sendMessage = async (isOnBorad) => {
+        console.log(process.env.REACT_APP_OPENAI_API_KEY);
         let prompt;
         let newMessages;
         if (input === '온보딩' || isOnBorad === '온보딩') {
