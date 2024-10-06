@@ -6,7 +6,7 @@ function App() {
   return (
     <React.Fragment>
       <Routes>
-        <Route path="/chatbot" element={<Chatbot_main/>} />
+        <Route path="/" element={<Chatbot_main/>} />
       </Routes>
     </React.Fragment>
   );
