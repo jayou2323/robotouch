@@ -46,11 +46,11 @@ function Chatbox(props) {
     if (e.target.value.length <= maxChars) {
       setMessage(e.target.value);
       props.setInput(e.target.value);
-      if(e.target.value === '') {
-          props.setIsHoverChatbox(true);
-      } else {
-          props.setIsHoverChatbox(false);
-      }
+      // if(e.target.value === '') {
+      //     props.setIsHoverChatbox(true);
+      // } else {
+      //     props.setIsHoverChatbox(false);
+      // }
     }
   };
 

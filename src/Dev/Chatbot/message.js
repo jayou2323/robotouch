@@ -11,7 +11,7 @@ const Response = styled.div`
     margin: 10px 10px;
     font-size: 18px;
     border-radius: 26px;
-    background-color: ${props => props.theme.colors.primary_bright};
+    background-color: #ffebcc
 `;
 
 const Input = Response;
@@ -24,26 +24,27 @@ function Message({ message, isUser, setMessageChange }) {
     const [index, setIndex] = useState(0);
 
     useEffect(() => {
-        if (!isUser && message.content) {
-            const interval = setInterval(() => {
-                if (index < sentences.length) {
-                    setDisplayedText(prev => prev + sentences[index] + ' ');
-                    setIndex(index+1);
-                    console.log(sentences.length, index)
-                    setMessageChange(index);
-                } else {
-                    clearInterval(interval);
-                }
-            }, 2000); // 문장 표시 간격 (1초)
-            return () => clearInterval(interval);
-        } else {
-            setDisplayedText(message.content);
-        }
+        // if (!isUser && message.content) {
+        //     const interval = setInterval(() => {
+        //         if (index < sentences.length) {
+        //             setDisplayedText(prev => prev + sentences[index] + ' ');
+        //             setIndex(index+1);
+        //             console.log(sentences.length, index)
+        //             setMessageChange(index);
+        //         } else {
+        //             clearInterval(interval);
+        //         }
+        //     }, 2000); // 문장 표시 간격 (1초)
+        //     return () => clearInterval(interval);
+        // } else {
+        //     setDisplayedText(message.content);
+        // }
+        setDisplayedText(message.content);
     }, [message, isUser, sentences]);
 
     return (
         <div style={{ width: '100%', display: 'flex', justifyContent: isUser ? 'end' : 'start' }}>
-            {isUser ? <Input>{message.content}</Input> : <Response dangerouslySetInnerHTML={{ __html: marked(displayedText) }}></Response>}
+            {isUser ? <Input>{message.content}</Input> : <Response style={{backgroundColor:'#FFF7EB'}} dangerouslySetInnerHTML={{ __html: marked(displayedText) }}></Response>}
         </div>
     );
 }

@@ -10,6 +10,7 @@ import SidebarItem from './sidebar_item';
 import Modal from './modal';
 import {prompt_text} from './prompt';
 import StartOnboard from './startOnboard';
+import { script1 } from './script';
 
 const AppContainer = styled.div`
   display: flex;
@@ -94,50 +95,59 @@ function Chatbot_main() {
 
     const [input, setInput] = useState('');
 
-    const [sidebarItems, setSidebarItems] = useState([]);
+    const [sidebarItems, setSidebarItems] = useState(['여자친구와 갈등']);
 
     const scrollRef = useRef(null);
 
+    const script = script1
+    const [idx, setIdx] = useState(0);
+
+    useEffect(()=>{
+      let message_ = [];
+      let newMessages = [];
+      let idx_ = 0;
+      const interval = setInterval(()=>{
+        if(idx_ < 6) {
+          if(idx_ % 2 === 0){
+            console.log('bot');
+            newMessages = [...message_, { sender: 'user', content: script[idx_] }];
+          } else {
+            console.log('user');
+            newMessages = [...message_, { sender: 'bot', content: script[idx_] }];
+          }
+          
+          message_ = newMessages;
+          setMessages(newMessages);
+          idx_++
+          console.log(message_)
+          setIdx(idx_); 
+        } else {
+          clearInterval();
+        }
+      }, 2000);
+      return () => clearInterval(interval);
+    },[])
+
     const sendMessage = async (isOnBorad) => {
-        console.log(process.env.REACT_APP_OPENAI_API_KEY);
         let prompt;
         let newMessages;
-        if (input === '온보딩' || isOnBorad === '온보딩') {
-            prompt = prompt_text;
-            newMessages = messages;
-        } else if (input.trim() === '') return;
-        else {
+        if (input.trim() === '') return;
+        else if (input !== '온보딩'){
             prompt = input;
             newMessages = [...messages, { sender: 'user', content: input }];
             setMessages(newMessages);
         }
-
-        const newMessagesForGpt = [...messagesForGpt, { role: 'user', content: prompt }];
-        setMessagesForGpt(newMessagesForGpt);
         setInput('');
 
-        console.log(newMessagesForGpt);
-
-        try {
-            const res = await axios.post(
-                'https://api.openai.com/v1/chat/completions',
-                {
-                  model: 'gpt-4o',
-                  messages: newMessagesForGpt,
-                },
-                {
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
-                  },
-                }
-              );
-              const data = res.data.choices[0].message.content;
-              setMessages([...newMessages, { sender: 'bot', content: data }]);
-              setMessagesForGpt([...newMessagesForGpt, { role: 'system', content: data }]);
-        } catch (error) {
-            console.error('Error fetching response from OpenAI:', error);
+        if(idx < script.length) {
+          await new Promise(resolve => setTimeout(resolve, script[idx].length*40));
+          newMessages = [...newMessages, { sender: 'bot', content: script[idx] }];
+          console.log(newMessages);
+          setMessages(newMessages); 
+          setIdx(idx + 1);
         }
+
+        console.log(idx);
     };
 
     const handleKeyPress = (e) => {
@@ -153,46 +163,19 @@ function Chatbot_main() {
         }
     }, [messageChange, messages, components]);
 
-    useEffect(() => {
-        // setSidebarItems(['정수기 위치', '복사하는 방법', '프린트하는 방법']);
-        const interval = setInterval(() => {
-          setComponents((prevComponents) => {
-            if (prevComponents.length < 5) {
-                if(prevComponents.length === 4){
-                    sendMessage('온보딩');
-                }
-              return [
-                ...prevComponents,
-                <StartOnboard key={prevComponents.length} index={prevComponents.length + 1} />
-              ];
-            } else if (prevComponents.length === 3) {
-                // console.log('hello');
-                // sendMessage('온보딩');
-                clearInterval(interval);
-                return prevComponents;
-            } else {
-                clearInterval(interval);
-                return prevComponents;
-            }
-          });
-        }, 3000);
-    
-        return () => clearInterval(interval);
-      }, []);
-
   return (
     <AppContainer>
       {modalOpen ? <Modal modalOpen={modalOpen} setModalOpen={setModalOpen}/> : null}
-      <Tooltip isHoverChatbox={isHoverChatbox} isHoverSidebarItemHeader={isHoverSidebarItemHeader}/>
+      <Tooltip isHoverChatbox={isHoverChatbox} isHoverSidebarItemHeader={isHoverSidebarItemHeader} idx={idx}/>
       <Sidebar>
         <Profile>
             <ProfileImage></ProfileImage>
-            <div>구자유님</div>
+            <div>전자룡 님</div>
         </Profile>
         <SidbarItemHaed
             onMouseEnter={()=>setIsHoverSidebarItemHeader(true)}
             onMouseLeave={()=>setIsHoverSidebarItemHeader(false)}
-        >이전에<br/> 궁금했던 것들</SidbarItemHaed>
+        >상황</SidbarItemHaed>
         {sidebarItems.map((text, index) => (
             <SidebarItem key={index}>{text}</SidebarItem>
         ))}
